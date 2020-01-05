@@ -22,11 +22,20 @@ int main() {
     // Переход в curses-режим
     initscr();
 
-    // Отрисовать содержимое
-    drawGame();
+    // How much time need to wait user input. If time passed getch will return ERR
+    halfdelay(2);
 
-    // Ожидание нажатия какой-либо клавиши пользователем
-    getch();
+    char input = 0;
+    while (input != 'q') {
+        // Отрисовать содержимое
+        drawGame();
+
+        // Ожидание нажатия какой-либо клавиши пользователем
+        input = getch();
+
+        // Move snake towards
+        snake.move();
+    }
 
     // Выход из curses-режима. Обязательная команда.
     endwin();
