@@ -1,6 +1,5 @@
 #include <ncurses.h>
-
-using namespace std;
+#include "snake.h"
 
 const int MAX_COLUMNS = 20;
 const int MAX_ROWS = 10;
@@ -8,6 +7,16 @@ const int MAX_ROWS = 10;
 // forward declaration - предварительное объявление
 void drawGame();
 void drawBox();
+void print(const char *text, Cell cell);
+
+// Create a snake
+const vector<Cell> snakeBody = {
+        Cell(6, 5),
+        Cell(5, 5),
+        Cell(4, 5),
+        Cell(4, 4)
+};
+Snake snake = Snake(snakeBody);
 
 int main() {
     // Переход в curses-режим
@@ -32,8 +41,11 @@ void drawGame() {
     // Draw game borders
     drawBox();
 
-    // Запись текста в буфер (y, x)
-    mvprintw(5, 5, "Hello World");
+    // Draw Snake
+    for (Cell tailSegment : snake.tail) {
+        print("o", tailSegment);
+    }
+    print("Q", snake.head);
 
     // Вывод данных из буфера на экран
     refresh();
@@ -53,6 +65,9 @@ void drawBox() {
     }
 }
 
+void print(const char *text, Cell cell) {
+    mvprintw(cell.y, cell.x, text);
+}
 
 
 

@@ -22,7 +22,7 @@ press next and install
 To build the program:
 ```
 cd <yourprojectdirectory>
-g++ -Wall -lncurses main.cpp -o snake
+g++ -std=c++11 -Wall -lncurses main.cpp -o snake
 ```
 
 To run the program (Mac/Linux):
