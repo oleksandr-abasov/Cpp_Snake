@@ -54,6 +54,15 @@ public:
         this->x = cell.x;
         this->y = cell.y;
     }
+
+    bool operator==(const Cell &rhs) const {
+        return x == rhs.x &&
+               y == rhs.y;
+    }
+
+    bool operator!=(const Cell &rhs) const {
+        return !(rhs == *this);
+    }
 };
 
 class Snake {

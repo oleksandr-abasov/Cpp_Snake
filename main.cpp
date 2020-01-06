@@ -8,7 +8,7 @@ const int MAX_ROWS = 10;
 void drawGame();
 void drawBox();
 void print(const char *text, Cell cell);
-
+bool hasCollided(Snake snake);
 Direction readDirection(char input);
 
 // Create a snake
@@ -42,12 +42,34 @@ int main() {
         // Move snake towards
         snake.turn(newDirection);
         snake.move();
+        bool collided = hasCollided(snake);
+        if (collided) {
+            input = 'q';
+        }
     }
 
     // Close curses-mode. Required cmd
     endwin();
 
     return 0;
+}
+
+bool hasCollided(Snake snake) {
+    bool collided = false;
+    // check if the head crossed tail
+    for (Cell tailSegment : snake.tail) {
+        if (snake.head == tailSegment) {
+            collided = true;
+            break;
+        }
+    }
+
+    // check that head crossed borders
+    if ((snake.head.x < 1 || snake.head.x > MAX_COLUMNS - 1)
+            || (snake.head.y < 1 || snake.head.y > MAX_ROWS)) {
+        collided = true;
+    }
+    return collided;
 }
 
 Direction readDirection(char input) {
