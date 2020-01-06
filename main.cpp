@@ -9,6 +9,8 @@ void drawGame();
 void drawBox();
 void print(const char *text, Cell cell);
 
+Direction readDirection(char input);
+
 // Create a snake
 const vector<Cell> snakeBody = {
         Cell(6, 5),
@@ -19,28 +21,48 @@ const vector<Cell> snakeBody = {
 Snake snake = Snake(snakeBody);
 
 int main() {
-    // Переход в curses-режим
+    // Open curses-mode
     initscr();
+
+    // Hide cursor
+    curs_set(0);
 
     // How much time need to wait user input. If time passed getch will return ERR
     halfdelay(2);
 
     char input = 0;
     while (input != 'q') {
-        // Отрисовать содержимое
+        // Draw game state
         drawGame();
 
-        // Ожидание нажатия какой-либо клавиши пользователем
+        // Wait for user keyboard input
         input = getch();
+        Direction newDirection = readDirection(input);
 
         // Move snake towards
+        snake.turn(newDirection);
         snake.move();
     }
 
-    // Выход из curses-режима. Обязательная команда.
+    // Close curses-mode. Required cmd
     endwin();
 
     return 0;
+}
+
+Direction readDirection(char input) {
+    switch (input) {
+        case 'i':
+            return UP;
+        case 'j':
+            return LEFT;
+        case 'k':
+            return DOWN;
+        case 'l':
+            return RIGHT;
+        default:
+            return UNKNOWN;
+    }
 }
 
 void drawGame() {

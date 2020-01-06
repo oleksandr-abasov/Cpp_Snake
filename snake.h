@@ -14,12 +14,26 @@ public:
         this->dx = dx;
         this->dy = dy;
     }
+
+    bool operator==(const Direction &rhs) const {
+        return dx == rhs.dx &&
+               dy == rhs.dy;
+    }
+
+    bool operator!=(const Direction &rhs) const {
+        return !(rhs == *this);
+    }
+
+    bool isOppositeTo(Direction direction) {
+        return dx + direction.dx == 0 && dy + direction.dy == 0;
+    }
 };
 
 static const Direction UP = Direction(0, -1);      // ^
 static const Direction DOWN = Direction(0, 1);     // V
 static const Direction LEFT = Direction(-1, 0);    // <-
 static const Direction RIGHT = Direction(1, 0);    // ->
+static const Direction UNKNOWN = Direction(999, 999);  // no user input
 
 class Cell {
 public:
@@ -59,6 +73,12 @@ public:
         }
         tail[0].moveTailToNextCell(head);
         head.moveHead(direction);
+    }
+
+    void turn(Direction newDirection) {
+        if (newDirection != UNKNOWN && !direction.isOppositeTo(newDirection)) {
+            direction = newDirection;
+        }
     }
 };
 
