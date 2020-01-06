@@ -89,6 +89,19 @@ public:
             direction = newDirection;
         }
     }
+
+    bool eat(vector<Cell> &apples) {
+        for (int i = 0; i < apples.size(); i++) {
+            Cell apple = apples[i];
+            if (head == apple) {
+                apples.erase(apples.begin() + i);
+                Cell newTailSegment = Cell(tail.end()->x, tail.end()->y);
+                tail.push_back(newTailSegment);
+                return true;
+            }
+        }
+        return false;
+    }
 };
 
 #endif //CPP_SNAKE_SNAKE_H

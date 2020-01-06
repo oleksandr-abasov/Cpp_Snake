@@ -1,10 +1,12 @@
 #include <ncurses.h>
 #include "snake.h"
+#include "apple.h"
 #include <string>
 #include <clocale>
 
 const int MAX_COLUMNS = 20;
 const int MAX_ROWS = 10;
+const int APPLES_GROWTH_CHANCE = 15;
 
 // forward declaration - предварительное объявление
 void drawGame();
@@ -21,7 +23,8 @@ const vector<Cell> snakeBody = {
         Cell(4, 4)
 };
 Snake snake = Snake(snakeBody);
-int score = 3;
+Apples apples = Apples(APPLES_GROWTH_CHANCE, MAX_COLUMNS, MAX_ROWS, std::mt19937());
+int score = 4;
 
 int main() {
     // Add UTF-8 support
@@ -48,6 +51,15 @@ int main() {
         // Move snake towards
         snake.turn(newDirection);
         snake.move();
+
+        // Eat apple
+        bool hasEaten = snake.eat(apples.cells);
+        if (hasEaten) score = snake.tail.size() + 1;
+
+        // Generate apples
+        apples.grow();
+
+        // check collisions
         bool collided = hasCollided(snake);
         if (collided) {
             input = 'q';
@@ -108,10 +120,17 @@ void drawGame() {
     // Draw game borders
     drawBox();
 
-    // Draw Snake
+    // Draw apples
+    for (Cell apple : apples.cells) {
+        print("", apple);
+    }
+
+    // Draw Snake Tail
     for (Cell tailSegment : snake.tail) {
         print("o", tailSegment);
     }
+
+    // Draw Snake Head
     print(headSymbol(snake.direction), snake.head);
 
     // Draw Game Score
