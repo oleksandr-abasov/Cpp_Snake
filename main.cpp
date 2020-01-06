@@ -1,5 +1,7 @@
 #include <ncurses.h>
 #include "snake.h"
+#include <string>
+#include <clocale>
 
 const int MAX_COLUMNS = 20;
 const int MAX_ROWS = 10;
@@ -7,7 +9,7 @@ const int MAX_ROWS = 10;
 // forward declaration - предварительное объявление
 void drawGame();
 void drawBox();
-void print(const char *text, Cell cell);
+void print(string text, Cell cell);
 bool hasCollided(Snake snake);
 Direction readDirection(char input);
 
@@ -19,8 +21,12 @@ const vector<Cell> snakeBody = {
         Cell(4, 4)
 };
 Snake snake = Snake(snakeBody);
+int score = 3;
 
 int main() {
+    // Add UTF-8 support
+    setlocale(LC_ALL, "");
+
     // Open curses-mode
     initscr();
 
@@ -66,10 +72,18 @@ bool hasCollided(Snake snake) {
 
     // check that head crossed borders
     if ((snake.head.x < 1 || snake.head.x > MAX_COLUMNS - 1)
-            || (snake.head.y < 1 || snake.head.y > MAX_ROWS)) {
+            || (snake.head.y < 1 || snake.head.y > MAX_ROWS - 1)) {
         collided = true;
     }
     return collided;
+}
+
+string headSymbol(Direction direction) {
+    if (direction == UP) return "∆";
+    else if (direction == DOWN) return "¥";
+    else if (direction == LEFT) return "≤";
+    else if (direction == RIGHT) return "≥";
+    else return "Q";
 }
 
 Direction readDirection(char input) {
@@ -88,7 +102,7 @@ Direction readDirection(char input) {
 }
 
 void drawGame() {
-    // Очистить экран
+    // Clear screen
     clear();
 
     // Draw game borders
@@ -98,9 +112,13 @@ void drawGame() {
     for (Cell tailSegment : snake.tail) {
         print("o", tailSegment);
     }
-    print("Q", snake.head);
+    print(headSymbol(snake.direction), snake.head);
 
-    // Вывод данных из буфера на экран
+    // Draw Game Score
+    string scoreMsg = "Score: " + to_string(score);
+    print(scoreMsg, Cell(MAX_COLUMNS + 2, MAX_ROWS / 2));
+
+    // Flush data from buffer to display it on the screen
     refresh();
 }
 
@@ -108,7 +126,7 @@ void drawBox() {
     // draw celling and floor
     for (int j = 0; j < MAX_COLUMNS; j++) {
         mvprintw(0, j, "_");
-        mvprintw(MAX_ROWS, j, "-");
+        mvprintw(MAX_ROWS, j, "¯");
     }
 
     // draw left and right walls
@@ -118,8 +136,8 @@ void drawBox() {
     }
 }
 
-void print(const char *text, Cell cell) {
-    mvprintw(cell.y, cell.x, text);
+void print(string text, Cell cell) {
+    mvprintw(cell.y, cell.x, text.c_str());
 }
 
 
