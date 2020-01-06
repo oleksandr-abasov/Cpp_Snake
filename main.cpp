@@ -8,12 +8,19 @@ const int MAX_COLUMNS = 20;
 const int MAX_ROWS = 10;
 const int APPLES_GROWTH_CHANCE = 15;
 
-// forward declaration - предварительное объявление
+// Keys
+const char KEY_ESCAPE = 27;
+const char KEY_SPACE = ' ';
+
+// --- forward declaration - предварительное объявление ---
+void systemProcess(char input);
+void gameUpdate(char &input);
 void drawGame();
 void drawBox();
 void print(string text, Cell cell);
 bool hasCollided(Snake snake);
 Direction readDirection(char input);
+// --------------------------------------------------------
 
 // Create a snake
 const vector<Cell> snakeBody = {
@@ -24,6 +31,7 @@ const vector<Cell> snakeBody = {
 };
 Snake snake = Snake(snakeBody);
 Apples apples = Apples(APPLES_GROWTH_CHANCE, MAX_COLUMNS, MAX_ROWS, std::mt19937());
+GameState gameState = GameState::IN_PROGRESS;
 int score = 4;
 
 int main() {
@@ -40,29 +48,14 @@ int main() {
     halfdelay(2);
 
     char input = 0;
-    while (input != 'q') {
-        // Draw game state
-        drawGame();
-
+    while (input != KEY_ESCAPE && input != 'q') {
         // Wait for user keyboard input
         input = getch();
-        Direction newDirection = readDirection(input);
 
-        // Move snake towards
-        snake.turn(newDirection);
-        snake.move();
+        systemProcess(input);
 
-        // Eat apple
-        bool hasEaten = snake.eat(apples.cells);
-        if (hasEaten) score = snake.tail.size() + 1;
-
-        // Generate apples
-        apples.grow();
-
-        // check collisions
-        bool collided = hasCollided(snake);
-        if (collided) {
-            input = 'q';
+        if (gameState == GameState::IN_PROGRESS) {
+            gameUpdate(input);
         }
     }
 
@@ -70,6 +63,46 @@ int main() {
     endwin();
 
     return 0;
+}
+
+void systemProcess(char input) {
+    if (input == KEY_SPACE) {
+        switch (gameState) {
+            case GameState::IN_PROGRESS: {
+                gameState = GameState::PAUSE;
+                string pauseMsg = "Press Space to continue";
+                print(pauseMsg, Cell(MAX_COLUMNS + 2, MAX_ROWS / 2 + 2));
+                break;
+            }
+            case GameState::PAUSE: {
+                gameState = GameState::IN_PROGRESS;
+                break;
+            }
+            default: return;
+        }
+    }
+}
+
+void gameUpdate(char &input) {
+    // Draw game state
+    drawGame();
+
+    Direction newDirection = readDirection(input);
+
+    // Move snake towards
+    snake.turn(newDirection);
+    snake.move();
+
+    // Eat apple
+    bool hasEaten = snake.eat(apples.cells);
+    if (hasEaten) score = snake.tail.size() + 1;
+
+    // Generate apples
+    apples.grow();
+
+    // check collisions
+    bool collided = hasCollided(snake);
+    if (collided) input = KEY_ESCAPE;
 }
 
 bool hasCollided(Snake snake) {
@@ -137,6 +170,10 @@ void drawGame() {
     string scoreMsg = "Score: " + to_string(score);
     print(scoreMsg, Cell(MAX_COLUMNS + 2, MAX_ROWS / 2));
 
+    // Draw Pause Help
+    string pauseMsg = "Press Space to pause";
+    print(pauseMsg, Cell(MAX_COLUMNS + 2, MAX_ROWS / 2 + 2));
+
     // Flush data from buffer to display it on the screen
     refresh();
 }
@@ -158,24 +195,3 @@ void drawBox() {
 void print(string text, Cell cell) {
     mvprintw(cell.y, cell.x, text.c_str());
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -5,6 +5,13 @@
 
 using namespace std;
 
+enum class GameState {
+    INITIALIZATION,
+    IN_PROGRESS,
+    PAUSE,
+    GAME_OVER
+};
+
 class Direction {
 public:
     int dx;
